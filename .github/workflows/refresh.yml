@@ -3,11 +3,11 @@ name: Trigger Actuator Refresh
 on:
   push:
     branches:
-      - main  # Or any other branch you want to trigger the action on
+      - main
 
 jobs:
   refresh:
-    runs-on: windows-latest  # Since you're using PowerShell
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
@@ -15,5 +15,12 @@ jobs:
 
       - name: Trigger actuator refresh
         run: |
-          Invoke-RestMethod -Uri "http://localhost:8081/actuator/refresh" -Method 'POST' -Headers @{ "Accept" = "application/json" }
+          try {
+            Write-Host "Triggering /actuator/refresh..."
+            Invoke-RestMethod -Uri "http://localhost:8081/actuator/refresh" -Method 'POST' -Headers @{ "Accept" = "application/json" }
+            Write-Host "Successfully triggered /actuator/refresh."
+          } catch {
+            Write-Host "Failed to trigger /actuator/refresh: $_"
+            exit 1
+          }
         shell: pwsh
